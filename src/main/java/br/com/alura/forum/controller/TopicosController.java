@@ -18,6 +18,7 @@ import javax.validation.Valid;
 import java.net.URI;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/topicos")
@@ -44,6 +45,7 @@ public class TopicosController {
     }
 
     @PostMapping
+    @Transactional
     public ResponseEntity<TopicoDto> cadastrar(@RequestBody @Valid TopicoForm form, UriComponentsBuilder uriBuilder){
 
         Topico topico = form.converter(cursoRepository);
@@ -54,10 +56,13 @@ public class TopicosController {
     }
 
     @GetMapping("/{id}")
-    public DetalhesDoTopicoDto detalhar(@PathVariable Long id){
-        Topico topico = topicoRepository.getOne(id);
+    public ResponseEntity<DetalhesDoTopicoDto> detalhar(@PathVariable Long id){
+        Optional<Topico> topico = topicoRepository.findById(id);
 
-        return new DetalhesDoTopicoDto(topico);
+        if (topico.isPresent()){
+            return  ResponseEntity.ok(new DetalhesDoTopicoDto(topico.get()));
+        }else
+            return ResponseEntity.notFound().build();
     }
 
     @PutMapping("/{id}")
@@ -66,5 +71,13 @@ public class TopicosController {
         Topico topico = form.atualizar(id, topicoRepository);
 
         return ResponseEntity.ok(new TopicoDto(topico));
+    }
+
+    @DeleteMapping("{id}")
+    @Transactional
+    public ResponseEntity<?> deletar (@PathVariable Long id){
+        topicoRepository.deleteById(id);
+
+        return ResponseEntity.ok().build();
     }
 }
