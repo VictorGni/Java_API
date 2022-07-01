@@ -13,6 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import javax.transaction.Transactional;
 import javax.validation.Valid;
 import java.net.URI;
 import java.util.Arrays;
@@ -59,5 +60,11 @@ public class TopicosController {
         return new DetalhesDoTopicoDto(topico);
     }
 
-  
+    @PutMapping("/{id}")
+    @Transactional
+    public ResponseEntity<TopicoDto> atualizar(@PathVariable Long id, @RequestBody @Valid AtualizaTopicoForm form){
+        Topico topico = form.atualizar(id, topicoRepository);
+
+        return ResponseEntity.ok(new TopicoDto(topico));
+    }
 }
