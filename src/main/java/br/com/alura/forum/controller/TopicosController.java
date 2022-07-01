@@ -68,16 +68,25 @@ public class TopicosController {
     @PutMapping("/{id}")
     @Transactional
     public ResponseEntity<TopicoDto> atualizar(@PathVariable Long id, @RequestBody @Valid AtualizaTopicoForm form){
-        Topico topico = form.atualizar(id, topicoRepository);
+        Optional<Topico> optional = topicoRepository.findById(id);
 
-        return ResponseEntity.ok(new TopicoDto(topico));
+        if (optional.isPresent()){
+            Topico topico = form.atualizar(id, topicoRepository);
+            return ResponseEntity.ok(new TopicoDto(topico));
+        }else
+            return ResponseEntity.notFound().build();
+
     }
 
     @DeleteMapping("{id}")
     @Transactional
     public ResponseEntity<?> deletar (@PathVariable Long id){
-        topicoRepository.deleteById(id);
+        Optional optional = topicoRepository.findById(id);
 
-        return ResponseEntity.ok().build();
+        if(optional.isPresent()){
+            topicoRepository.deleteById(id);
+            return ResponseEntity.ok().build();
+        }else
+            return ResponseEntity.notFound().build();
     }
 }
